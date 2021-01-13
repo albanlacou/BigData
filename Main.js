@@ -6,20 +6,20 @@ let fs = require('fs');
 
 
 if(args[2] == '-help'){
-  console.log("\nThanks for typing help, check out the usage : \n use -action sort_date <input> <output> \n use -action transform <input> <output> \n use -action sort_titre <input> <output> \n use -action search_date <input> <year> <sorted (true or false)> \n use -action search_key_word <input> <key_word> <genre>\n");
+  console.log('\x1b[32m%s\x1b[0m', "\nThanks for typing help, check out the usage : \n use -action sort_date <input> <output> \n use -action transform <input> <output> \n use -action sort_titre <input> <output> \n use -action search_date <input> <year> <sorted (true or false)> \n use -action search_key_word <input> <key_word> <genre>\n");
 } else if (args[2] == "-action"){
   switch(args[3]){
     case "transform":
         let Tstart = new Date();
         transformFile(args[4],args[5]);
         let Tend = new Date();
-        console.log("Duration = " + (Tend - Tstart) + "ms");
+        console.log('\x1b[32m%s\x1b[0m', "Duration = " + (Tend - Tstart) + "ms");
         break;
     case "sort_date":
       let SDstart = new Date();
       sortArrayByDate(args[4], args[5]);
       let SDend = new Date();
-      console.log("Duration = " + (SDend - SDstart) + "ms");
+      console.log('\x1b[32m%s\x1b[0m', "Duration = " + (SDend - SDstart) + "ms");
       break;
     case "sort_title":
       break;
@@ -27,13 +27,13 @@ if(args[2] == '-help'){
       let S_Dstart = new Date();
       searchDate(args[4],args[5],args[6]);
       let S_Dend = new Date();
-      console.log("Duration = " + (S_Dend - S_Dstart) + "ms");
+      console.log('\x1b[32m%s\x1b[0m', "Duration = " + (S_Dend - S_Dstart) + "ms");
       break;
     case "search_key_word":
       break;
   }
 } else {
-  console.log("Error \n Please type -help to see availables commands")
+  console.log('\x1b[36m%s\x1b[0m', "Error \n Please type -help to see availables commands")
 }
 
 // console.log(movies);
@@ -44,16 +44,16 @@ function timeConverter(timestamp){
     return year;
   }
 
-function transformFile(input, output){
-  let file = require("./" + input);
-  let allMovies = [];
-  for(let i = 0;i< file.length;i++){
-    let timestamp_date = {"title": file[i].title +" ("+timeConverter(file[i].release_date)+")"};
-    allMovies.push(timestamp_date)
+  function transformFile(input, output){
+    let file = require("./" + input);
+    let allMovies = [];
+    for(let i = 0;i< file.length;i++){
+      let timestamp_date = {"title": file[i].title +" ("+timeConverter(file[i].release_date)+") " , "poster": file[i].poster , "overview": file[i].overview , "genres": file[i].genres};
+      allMovies.push(timestamp_date)
+    }
+    writeToFile(allMovies,output);
+    console.log('\x1b[36m%s\x1b[0m', 'Saved!');
   }
-  writeToFile(allMovies,output);
-  console.log('Everything Saved!');
-}
 
 function writeToFile(toWrite, output){
   let writable = JSON.stringify(toWrite,null,"\t");
@@ -63,6 +63,7 @@ function writeToFile(toWrite, output){
 function sortArrayByDate(input,output){
   let file = require("./" + input);
   let tempo = 0;
+  let allMovies = [];
   for(let i = 0; i < file.length; i++){ 
     for(let j = i+1; j < file.length; j++){ // pour j allant de i+1 à tab.length
       if(file[j].release_date < file[i].release_date){
@@ -71,30 +72,25 @@ function sortArrayByDate(input,output){
           file[j] = tempo;
       }
     }
+    let timestamp_date = {"title": file[i].title +" ("+timeConverter(file[i].release_date)+") " , "poster": file[i].poster , "overview": file[i].overview , "genres": file[i].genres};
+    allMovies.push(timestamp_date)
   }
-  writeToFile(file,output);
-  console.log("Saved")
+  writeToFile(allMovies,output);
+  console.log('\x1b[36m%s\x1b[0m',"Saved")
 }
 
 function searchDate(input, year, sorted){
   let file = require("./" + input);
-  let dates = [];
-  if(sorted == "true"){
-    for(let j = 0;j<file.length;j++){
-      dates.push(timeConverter(file[j].release_date));
-    }
-    let sorted_array = tri_rapide(dates,0,dates.length-1);
-    console.log(searchBinaire(parseInt(year),sorted_array,0,sorted_array.length));
-
-  } else {
-    for(let i=0;i<file.length;i++){
-      let date = timeConverter(file[i].release_date);
-      if(date == year){
-        let donnee = file[i].title + " : " + "(" +date+")";
-        console.log(donnee);
-      }
+  let date_array = []
+  for(let i=0;i<file.length;i++){
+    let date = timeConverter(file[i].release_date);
+    if(date == year){
+      let donnee = file[i].title;
+      date_array.push(donnee);
+      console.log('\x1b[36m%s\x1b[0m', donnee);
     }
   }
+  return date_array;
 }
 
 function tri_alphabetique() {
@@ -116,7 +112,7 @@ function tri_alphabetique() {
   }
   writeToFile(array2,"out.json")
   let end = new Date();
-  console.log("Duration = " + (end - start) + "ms");
+  console.log('\x1b[33m%s\x1b[0m',"Duration = " + (end - start) + "ms");
   return array;
 }
 
