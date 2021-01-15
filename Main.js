@@ -7,6 +7,7 @@ let movies = require('./movies.json');
 let start = new Date();
 let haveToDownload = false;
 let folderToDownload;
+
 const download = (url, path, callback) => {
   request.head(url,(err,res,body) => {
     request(url)
@@ -14,6 +15,7 @@ const download = (url, path, callback) => {
     .on('close',callback)
   })
 }
+
 if (args.includes('-save')){
   let saveIndex = args.indexOf('-save');
   if(args[saveIndex + 1] == undefined){
@@ -25,7 +27,7 @@ if (args.includes('-save')){
 }
 if(args.includes('-help')){
   let index = args.indexOf('-help');
-  console.log('\x1b[32m%s\x1b[0m', "\nThanks for typing help, check out the usage : \n use -action sort_date <input> <output> \n use -action transform <input> <output> \n use -action sort_title <input> <output> \n use -action search_date <input> <year> <sorted (true or false)> \n use -action search_key_word <input> <date> <genre> <key_word>\n");
+  console.log('\x1b[32m%s\x1b[0m', "\nThanks for typing help, check out the usage : \n use -action sort_date <input> <output> \n use -action transform <input> <output> \n use -action sort_title <input> <output> \n use -action search_date <input> <year> <sorted (true or false)> \n use -action search_key_word <input> <genre> <key_word>\n");
 } else if(args.includes('-action')){
   let index = args.indexOf('-action');
   switch(args[index + 1]){
@@ -126,7 +128,7 @@ function sortArray(input){
   return allMovies[allMovies.length - 1];
 }
 
-function searchDate(input,year,sorted){
+function searchDate(input,year,sorted,folder = undefined){
   let file = require('./' + input);
   let date_array = [];
   if (sorted == "true"){
@@ -138,10 +140,13 @@ function searchDate(input,year,sorted){
       if(date == year){
         let donnee = file[i];
         date_array.push(donnee);
-        console.log('\x1b[36m%s\x1b[0m', donnee);
+        console.log('\x1b[36m%s\x1b[0m', file[i].title);
       }
   }
   return date_array;
+  }
+  if(haveToDownload){
+    downloadImages(date_array.poster,folderToDownload,date_array.title.replace(/[^a-zA-Z0-9]/g, '_'));
   }
 }
 
@@ -155,7 +160,6 @@ function sortedArray(file,year, first, last){
     sortedArray(file,year,middle+1,last);
   }
 }
-
 
 function tri_alphabetique(input, output) {
   let array = require('./' + input);
